@@ -1,4 +1,4 @@
-(ns tankz.tankz)
+(ns tankz.core)
 
 (def colors ["orange" "blue" "red" "green" "yellow" "magenta" "cyan"])
 
@@ -18,7 +18,7 @@
     (.fillRect context 0 0 (.-width canvas) (.-height canvas))
     (request-frame animate)))
 
-(defn init []
-  (animate))
-
-(set! (.-onload js/window) init)
+(defn ^:export init []
+  (if (and js/document
+           (.-getElementById js/document))
+    (animate)))
