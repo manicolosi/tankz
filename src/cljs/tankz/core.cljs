@@ -1,9 +1,10 @@
-(ns tankz.core)
+(ns tankz.core
+  (:require [clojure.string :as str]))
 
 (def colors ["orange" "blue" "red" "green" "yellow" "magenta" "cyan"])
 
-(defn log [x & xs]
-  (.log js/console (apply str x xs)))
+(defn log [& xs]
+  (.log js/console (str/join " " xs)))
 
 (defn load-img [name]
   (let [img (js/Image)
@@ -17,8 +18,15 @@
    :turrent (load-img "turret.png")
    :sand (load-img "sand.png")})
 
+(defn images-loaded? [images]
+  (reduce (fn [acc [_ v]] (and acc (.-complete v)))
+          images))
+
+(defn draw-image [context game image x y]
+  (.drawImage context (image (:images game)) x y))
+
 (defn new-game []
-  {:assets (load-images)
+  {:images (load-images)
    ; ...
    })
 
@@ -36,15 +44,15 @@
         context (.getContext canvas "2d")]
     (doseq [x (range 0 (.-width canvas) 32)
           y (range 0 (.-height canvas) 32)]
-      (.drawImage context (:sand (:assets game)) x y))))
+      (draw-image context game :sand x y))))
 
 (defn game-loop [game]
-  (if (reduce (fn [acc [_ v]] (and acc (.-complete v))) (:assets game))
+  ;; We really shouldn't do this on every game loop.
+  (if (images-loaded? (:images game))
     (draw-game game)
     (log "Not Ready"))
   (request-frame #(game-loop game)))
 
 (defn ^:export init []
-  (if (and js/document
-           (.-getElementById js/document))
+  (if (and js/document (.-getElementById js/document))
     (game-loop (new-game))))
