@@ -13,4 +13,4 @@
                         :compiler {:output-to "resources/public/js/tankz.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}]}
-  :ring {:handler tankz.core/handler})
+  :ring {:handler tankz.core/app})
