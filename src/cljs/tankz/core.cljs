@@ -1,15 +1,13 @@
 (ns tankz.core
-  (:require [clojure.string :as str]))
+  (:require [tankz.input :as input]
+            [tankz.utils :as utils]))
 
 (def colors ["orange" "blue" "red" "green" "yellow" "magenta" "cyan"])
-
-(defn log [& xs]
-  (.log js/console (str/join " " xs)))
 
 (defn load-img [name]
   (let [img (js/Image)
         src (str "/img/" name)]
-    (log "Loading:" name)
+    (utils/log "Loading:" name)
     (set! (.-src img) src)
     img))
 
@@ -30,14 +28,13 @@
    ; ...
    })
 
-(defn request-frame [callback]
-  ((or (.-requestAnimationFrame js/window)
+(def request-frame
+  (or (.-requestAnimationFrame js/window)
       (.-webkitRequestAnimationFrame js/window)
       (.-mozRequestAnimationFrame js/window)
       (.-oRequestAnimationFrame js/window)
       (.-msRequestAnimationFrame js/window)
-      (fn [callback] (.setTimeout js/window callback (/ 1000 60))))
-     callback))
+      (fn [callback] (.setTimeout js/window callback (/ 1000 60)))))
 
 (defn draw-game [game]
   (let [canvas (.getElementById js/document "game")
@@ -50,9 +47,10 @@
   ;; We really shouldn't do this on every game loop.
   (if (images-loaded? (:images game))
     (draw-game game)
-    (log "Not Ready"))
+    (utils/log "Not Ready"))
   (request-frame #(game-loop game)))
 
 (defn ^:export init []
-  (if (and js/document (.-getElementById js/document))
+  (when (and js/document (.-getElementById js/document))
+    (input/listen js/window)
     (game-loop (new-game))))
