@@ -15,7 +15,7 @@
     (comment (utils/log "Keys pressed:" @key-buffer))))
 
 (defn key-pressed? [key]
-  (some #{key} key-buffer))
+  (some #{key} @key-buffer))
 
 (def mouse-buffer (atom {}))
 
