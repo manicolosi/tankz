@@ -10,11 +10,20 @@
 (defn tank [x y]
   {:position [x y]})
 
+(def keys-to-deltas
+  {:up    [ 0 -1]
+   :down  [ 0  1]
+   :left  [-1  0]
+   :right [ 1  0]})
+
+(defn find-movement []
+  (reduce (fn [[dx1 dy1] [dx2 dy2]] [(+ dx1 dx2) (+ dy1 dy2)])
+    (for [[k v] keys-to-deltas]
+      (if (input/key-pressed? k)
+        v
+        [0 0]))))
+
 (defn update-tank [tank]
-  (let [[x y] (:position tank)]
-    (cond
-      (input/key-pressed? :up)    (assoc tank :position [x (dec y)])
-      (input/key-pressed? :down)  (assoc tank :position [x (inc y)])
-      (input/key-pressed? :left)  (assoc tank :position [(dec x) y])
-      (input/key-pressed? :right) (assoc tank :position [(inc x) y])
-      :else tank)))
+  (let [[x y] (:position tank)
+        [dx dy] (find-movement)]
+    (assoc tank :position [(+ x dx) (+ y dy)])))
