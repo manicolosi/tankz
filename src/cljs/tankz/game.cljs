@@ -15,7 +15,7 @@
 ;; TODO: Move back to core.cljs later and do this before the game is started.
 (defn- load-images []
   {:tank (load-img "tank.png")
-   :turrent (load-img "turret.png")
+   :turret (load-img "turret.png")
    :sand (load-img "sand.png")})
 
 (defn- images-loaded? [images]

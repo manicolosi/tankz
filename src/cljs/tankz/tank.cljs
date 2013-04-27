@@ -4,25 +4,33 @@
             [tankz.utils :as utils]))
 
 (defn draw-tank [tank context game]
-  (let [r (:rotation tank)
-        [x y] (:position tank)]
+  (let [[x y]      (:position tank)
+        tank-rot   (:rotation tank)
+        turret-rot (:turret tank)]
+    ;; Optimize this after we start tracking FPS
     (canvas/save context)
     (canvas/translate context x y)
-    (canvas/rotate context r)
+    (canvas/rotate context tank-rot)
     (canvas/draw-image context game :tank -24 -24)
-    (canvas/restore context)))
+    (canvas/restore context)
+    (canvas/save context)
+    (canvas/translate context x y)
+    (canvas/rotate context turret-rot)
+    (canvas/draw-image context game :turret -24 -24)
+    (canvas/restore context)
+    ))
 
 (defn tank [x y]
   {:position [x y]
    :rotation 0})
 
 (def movement-keys
-  {:up   [1 -1]
-   :down [-1  1]})
+  {:up   [2 -2]
+   :down [-2  2]})
 
 (def rotation-keys
-  {:right 1
-   :left -1})
+  {:right 2
+   :left -2})
 
 (defn delta-rotation []
   (* (/ (* 2 Math/PI) 360)
@@ -46,7 +54,8 @@
         [dx dy] (delta-position)
         nx      (+ x (* dx (Math/sin nrot)))
         ny      (+ y (* dy (Math/cos nrot)))
-        ]
-    (-> tank
-        (assoc :rotation nrot)
-        (assoc :position [nx ny]))))
+        [mx my] (input/mouse-position)
+        turret  (Math/atan2 (- x mx) (- my y))]
+    (assoc tank :rotation nrot
+                :position [nx ny]
+                :turret   turret)))
